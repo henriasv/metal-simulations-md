@@ -1,0 +1,44 @@
+# ------------------------ INITIALIZATION ----------------------------
+units 		metal
+dimension	3
+boundary	p	p	p
+atom_style	atomic
+variable latparam equal 3.61496 # Wyckoff 1963
+variable T equal 300
+
+# ----------------------- ATOM DEFINITION ----------------------------
+lattice		fcc ${latparam}
+region		whole block 0 80 0 1 0 80
+create_box	1 whole
+lattice 	fcc ${latparam} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+create_atoms	1 region whole
+
+mass 1 63.546
+
+# ------------------------ FORCE FIELDS ------------------------------
+
+
+include Cu_Zuo_JPCA2020.snap
+
+timestep 0.0005
+
+#change_box all triclinic
+
+velocity all create 300 12345 mom yes rot no
+
+fix langevin all langevin 300 ${T} 2.0 699483 zero yes
+fix nve all nve
+
+dump myDump all custom 1000 frames/dump.*.bin id type x y z 
+
+# Set thermo output
+thermo 10
+thermo_style custom step time temp lx ly lz press pxx pyy pzz pe cpuremain
+
+# Run for at least 10 picosecond (assuming 1 fs timestep)
+run 10000
+unfix langevin 
+
+fix langevin all langevin ${T} ${T} 2.0 699483 zero yes 
+fix deform all deform 1 xz erate 0.001 remap x
+run 300000
