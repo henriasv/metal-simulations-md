@@ -4,7 +4,7 @@ dimension	3
 boundary	p	p	p
 atom_style	atomic
 variable latparam equal 2.91
-variable T equal 400
+variable T equal 800
 
 # ----------------------- ATOM DEFINITION ----------------------------
 lattice		bcc ${latparam}
@@ -40,5 +40,5 @@ run 10000
 unfix langevin 
 
 fix langevin all langevin ${T} ${T} 2.0 699483 zero yes 
-fix deform all deform 1 xz erate 0.003 remap x
+fix deform all deform 1 xz erate 0.001 remap x
 run 300000
